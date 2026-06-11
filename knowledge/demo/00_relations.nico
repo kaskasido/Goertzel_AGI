@@ -1,0 +1,22 @@
+# Demo knowledge pack - relation vocabulary (lesson 00)
+#
+# This file teaches the relations BY EXAMPLE. The relations you introduce
+# here define which questions become askable later (the "frame").
+#
+# Sentence form: SUBJECT VERB OBJECT  (one per line, # starts a comment).
+# Multi-word verbs use underscores (is_part_of).
+#
+# is a        -> class membership (taxonomy)
+# causes      -> causality (transitive: A->B, B->C => A->C)
+# is_part_of  -> part-whole (transitive)
+# shows       -> property / observation
+# resembles   -> similarity / analogy
+
+Socrates is a human
+A human is a mammal
+A mammal is an animal
+Water causes erosion
+Erosion is_part_of weathering
+A heart is_part_of a body
+Fire shows heat
+A dog resembles a wolf

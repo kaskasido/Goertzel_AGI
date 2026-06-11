@@ -1,0 +1,19 @@
+# Demo knowledge pack - taxonomy (lesson 01)
+# Classic "is a" chains. PLN derives implicit facts you never stated,
+# e.g. that Socrates is mortal.
+
+Socrates is a human
+A human is a mammal
+A mammal is an animal
+An animal is a living_being
+A living_being is a mortal_thing
+
+A dog is a mammal
+A cat is a mammal
+A whale is a mammal
+A sparrow is a bird
+A bird is an animal
+
+A mammal is a vertebrate
+A bird is a vertebrate
+A vertebrate is an animal

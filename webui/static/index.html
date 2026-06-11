@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Goertzel-AGI — Kognitions-Cockpit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #30363d;
+    --text: #c9d1d9; --dim: #8b949e; --accent: #58a6ff;
+    --good: #3fb950; --warn: #d29922; --hot: #f85149;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 system-ui, sans-serif;
+    display: grid; height: 100vh;
+    grid-template-rows: auto 1fr 230px;
+    grid-template-columns: 340px 1fr 320px;
+    grid-template-areas: "head head head" "chat graph side" "log log side";
+    gap: 8px; padding: 8px;
+  }
+  header { grid-area: head; display: flex; align-items: baseline; gap: 16px; padding: 4px 8px; }
+  header h1 { font-size: 17px; margin: 0; }
+  header .stats { color: var(--dim); font-size: 13px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+  .panel h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin: 0; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .panel .body { padding: 10px 12px; overflow-y: auto; flex: 1; }
+  #chat { grid-area: chat; }
+  #graphPanel { grid-area: graph; }
+  #side { grid-area: side; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  #side .panel { flex: 1; min-height: 0; }
+  #log { grid-area: log; }
+  canvas { width: 100%; height: 100%; display: block; }
+  #graphPanel .body { padding: 0; position: relative; }
+  input, button, textarea {
+    background: #0d1117; color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 9px; font: inherit;
+  }
+  button { cursor: pointer; background: #21262d; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+  .row { display: flex; gap: 6px; margin-bottom: 8px; }
+  .row input { flex: 1; min-width: 0; }
+  .msg { margin: 6px 0; padding: 7px 10px; border-radius: 7px; white-space: pre-wrap; word-break: break-word; }
+  .msg.user { background: #1f6feb22; border: 1px solid #1f6feb55; }
+  .msg.ai { background: #23863622; border: 1px solid #23863655; }
+  .msg.sys { color: var(--dim); font-size: 12.5px; }
+  .msg .tv { color: var(--warn); font-weight: 600; }
+  .trace { font: 11.5px/1.5 ui-monospace, monospace; color: var(--dim); margin-top: 5px; }
+  .bar { height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; margin: 2px 0 7px; }
+  .bar > div { height: 100%; background: var(--accent); }
+  .focus-item { font: 11.5px/1.4 ui-monospace, monospace; word-break: break-word; }
+  .legend { position: absolute; bottom: 8px; left: 10px; font-size: 11px; color: var(--dim); background: #161b22cc; padding: 4px 8px; border-radius: 6px; }
+  .cyc { font: 12px/1.55 ui-monospace, monospace; margin-bottom: 10px; }
+  .cyc b { color: var(--accent); }
+  .cyc .agent { color: var(--warn); }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--border); color: var(--dim); }
+  .pill.on { color: var(--good); border-color: var(--good); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧠 Goertzel-AGI — Kognitions-Cockpit</h1>
+  <span class="stats" id="stats">verbinde…</span>
+  <span style="flex:1"></span>
+  <button onclick="step(1)">1 Zyklus ▸</button>
+  <button onclick="step(5)">5 Zyklen ▸▸</button>
+</header>
+
+<div class="panel" id="chat">
+  <h2>Dialog (Wahrnehmung &amp; Fragen)</h2>
+  <div class="body" id="chatlog">
+    <div class="msg sys">Bringe der KI etwas bei, z.B.:<br>„Sokrates ist ein mensch"<br>„Ein mensch ist ein sterbliches"<br><br>Und frage dann unten: sokrates → sterbliches?</div>
+  </div>
+  <div style="padding:10px 12px;border-top:1px solid var(--border)">
+    <div class="row">
+      <input id="tellInput" placeholder="Aussage… (Ein X ist ein Y)" onkeydown="if(event.key==='Enter')tell()">
+      <button class="primary" onclick="tell()">Sagen</button>
+    </div>
+    <div class="row">
+      <input id="askSubj" placeholder="Subjekt" style="flex:1">
+      <span style="align-self:center;color:var(--dim)">ist ein</span>
+      <input id="askObj" placeholder="Objekt" style="flex:1">
+      <button onclick="ask()">Fragen?</button>
+    </div>
+    <div class="row" style="margin-bottom:0">
+      <input id="relSubj" placeholder="concept (e.g. socrates)" style="flex:1">
+      <input id="relPred" placeholder="Relation (verursacht…)" style="flex:1.2" list="rels">
+      <datalist id="rels"><option value="verursacht"><option value="fuehrt_zu"><option value="zeigt"><option value="behandelt_mit"><option value="aehnelt"><option value="ist_teil_von"><option value="betrifft"><option value="erkennt"></datalist>
+      <button onclick="askRelation()">Fachfrage</button>
+    </div>
+    <div class="row" style="margin:8px 0 0">
+      <button onclick="teachDemo()" style="flex:1">📚 Load demo pack</button>
+      <button onclick="ingestInbox()" style="flex:1" title="Dateien aus dem Ordner inbox/ lernen">📥 Posteingang lernen</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="graphPanel">
+  <h2>Atomspace — Wissens-Metagraph (Größe = Aufmerksamkeit/STI)</h2>
+  <div class="body">
+    <canvas id="graph"></canvas>
+    <div class="legend">Kantenfarbe: <span style="color:#58a6ff">Inheritance</span> · <span style="color:#3fb950">Similarity</span> · <span style="color:#d29922">Evaluation/sonstige</span> — Deckkraft = Konfidenz</div>
+  </div>
+</div>
+
+<div id="side">
+  <div class="panel">
+    <h2>Attentional Focus (ECAN)</h2>
+    <div class="body" id="focus"></div>
+  </div>
+  <div class="panel">
+    <h2>Ziele / Demands (OpenPsi)</h2>
+    <div class="body" id="demands"></div>
+  </div>
+  <div class="panel">
+    <h2>Vordenker-Selbstupdate</h2>
+    <div class="body" id="selfupdate"></div>
+  </div>
+  <div class="panel">
+    <h2>Denker-Agenten (Zuhören &amp; Wachsen)</h2>
+    <div class="body" id="listener"></div>
+  </div>
+</div>
+
+<div class="panel" id="log">
+  <h2>Kognitiver Zyklus — was die Agenten tun</h2>
+  <div class="body" id="cycles"></div>
+</div>
+
+<script>
+"use strict";
+let state = null;
+const positions = new Map();   // nodeId -> {x,y,vx,vy}
+
+async function api(path, payload) {
+  const opts = payload === undefined ? {} :
+    { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload) };
+  const res = await fetch(path, opts);
+  return res.json();
+}
+
+function chatAdd(cls, html) {
+  const div = document.createElement("div");
+  div.className = "msg " + cls;
+  div.innerHTML = html;
+  const log = document.getElementById("chatlog");
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+async function tell() {
+  const input = document.getElementById("tellInput");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  chatAdd("user", esc(text));
+  const data = await api("/api/tell", {text});
+  if (data.error) { chatAdd("sys", "Fehler: " + esc(data.error)); return; }
+  applyState(data);
+  const perceived = lastActions(data, "PerceptionAgent");
+  chatAdd("ai", perceived.length
+    ? "Wahrgenommen und in den Atomspace übernommen:<div class='trace'>" + perceived.map(esc).join("<br>") + "</div>"
+    : "Das konnte ich nicht parsen — Muster: „Ein X ist ein Y“ oder „X verb Y“.");
+}
+
+async function ask() {
+  const s = document.getElementById("askSubj").value.trim();
+  const o = document.getElementById("askObj").value.trim();
+  if (!s || !o) return;
+  chatAdd("user", `Frage: <b>${esc(s)}</b> ist ein <b>${esc(o)}</b>?`);
+  const data = await api("/api/ask", {subject: s, object: o});
+  if (data.error) { chatAdd("sys", "Fehler: " + esc(data.error)); return; }
+  applyState(data.state);
+  const a = data.answer;
+  if (!a.proven) {
+    chatAdd("ai", "Dazu finde ich keine Beweiskette im Atomspace.");
+  } else {
+    const pct = (a.strength * 100).toFixed(0);
+    const conf = (a.confidence * 100).toFixed(0);
+    chatAdd("ai",
+      `Ja — mit <span class="tv">Stärke ${pct}%</span> bei <span class="tv">Konfidenz ${conf}%</span> (PLN).` +
+      (a.trace.length
+        ? `<div class="trace">Beweiskette:<br>${a.trace.map(esc).join("<br>")}</div>`
+        : `<div class="trace">Direkt im Atomspace gefunden (zuvor wahrgenommen oder per Forward Chaining abgeleitet — siehe Zyklus-Log).</div>`));
+  }
+}
+
+async function askRelation() {
+  const p = document.getElementById("relPred").value.trim();
+  const s = document.getElementById("relSubj").value.trim();
+  if (!p || !s) return;
+  chatAdd("user", `Fachfrage: Was steht zu <b>${esc(s)}</b> in Relation <b>${esc(p)}</b>?`);
+  const data = await api("/api/ask_relation", {predicate: p, subject: s});
+  if (data.error) { chatAdd("sys", "Fehler: " + esc(data.error)); return; }
+  applyState(data.state);
+  const a = data.answer || [];
+  if (!a.length) {
+    chatAdd("ai", "Dazu finde ich nichts (Relation/Begriff noch unbekannt — erst lehren?).");
+  } else {
+    chatAdd("ai", `${esc(s)} ${esc(p)}:<div class="trace">` +
+      a.map(r => `${esc(r.object)} (Konfidenz ${(r.confidence*100).toFixed(0)}%)`).join("<br>") + "</div>");
+  }
+}
+
+async function teachDemo() {
+  chatAdd("sys", "Loading the demo knowledge pack (knowledge/demo)…");
+  const data = await api("/api/teach_demo", {});
+  if (data.state) applyState(data.state);
+  chatAdd("sys", "Lesson: " + esc(data.result || data.error || "?"));
+}
+
+async function ingestInbox() {
+  chatAdd("sys", "Verarbeite Posteingang (Ordner inbox/)…");
+  const data = await api("/api/ingest", {});
+  if (data.state) applyState(data.state);
+  chatAdd("sys", "Posteingang: " + esc(data.result || data.error || "?") +
+    (data.actions && data.actions.length ? "<div class='trace'>" + data.actions.map(esc).join("<br>") + "</div>" : ""));
+}
+
+async function step(n) { applyState(await api("/api/step", {cycles: n})); }
+
+async function listenNow() {
+  chatAdd("sys", "Denker-Agenten hören zu (Lex Fridman, TED, David Deutsch, eigene Feeds)…");
+  const data = await api("/api/listen", {});
+  if (data.state) applyState(data.state);
+  chatAdd("sys", "Zuhören: " + esc(data.result || data.error || "?") +
+    (data.actions && data.actions.length ? "<div class='trace'>" + data.actions.map(esc).join("<br>") + "</div>" : ""));
+}
+
+async function selfUpdateNow() {
+  document.getElementById("suBtn").disabled = true;
+  const data = await api("/api/selfupdate", {});
+  if (data.state) applyState(data.state);
+  chatAdd("sys", "Selbstupdate: " + esc(data.result || data.error || "?") +
+    (data.actions && data.actions.length ? "<div class='trace'>" + data.actions.map(esc).join("<br>") + "</div>" : ""));
+}
+
+function lastActions(snapshot, agent) {
+  const h = snapshot.history;
+  if (!h || !h.length) return [];
+  const reports = h[h.length - 1].reports.filter(r => r.agent === agent);
+  return reports.flatMap(r => r.actions);
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function applyState(s) {
+  if (!s || !s.graph) return;
+  state = s;
+  document.getElementById("stats").textContent =
+    `Zyklus ${s.cycle} · ${s.atom_count} Atome · ${s.graph.edges.length} Links sichtbar` +
+    (s.perception ? ` · Wahrnehmung: ${s.perception}` : "");
+
+  const focus = document.getElementById("focus");
+  const maxSti = Math.max(1, ...s.focus.map(f => f.sti));
+  focus.innerHTML = s.focus.length ? s.focus.map(f =>
+    `<div class="focus-item">${esc(f.label)}</div><div class="bar"><div style="width:${(100*f.sti/maxSti).toFixed(1)}%"></div></div>`
+  ).join("") : "<span style='color:var(--dim)'>leer — gib dem System etwas zu denken</span>";
+
+  document.getElementById("demands").innerHTML = s.demands.map(d =>
+    `<div>${esc(d.name)} <span style="color:var(--dim)">level ${d.level} · urge ${d.urge}</span></div>
+     <div class="bar"><div style="width:${(100*d.level).toFixed(0)}%;background:${d.urge>0.5?'var(--hot)':'var(--good)'}"></div></div>`
+  ).join("");
+
+  const su = s.self_update;
+  document.getElementById("selfupdate").innerHTML =
+    `<div style="margin-bottom:6px"><span class="pill ${su.enabled?'on':''}">${su.enabled?'aktiv (selbstorganisiert)':'deaktiviert'}</span></div>
+     <div style="color:var(--dim);font-size:12.5px">Bekannte Werke: ${su.known_works}<br>Letzter Lauf: ${esc(su.last_result)}</div>
+     <div style="margin-top:8px"><button id="suBtn" onclick="selfUpdateNow()" ${su.enabled?'':'disabled'}>Jetzt nach Neuem suchen</button></div>
+     <div style="color:var(--dim);font-size:11.5px;margin-top:6px">Quellen: arXiv (au:Goertzel), Substack. Ausgelöst vom „aktualitaet"-Urge oder manuell.</div>`;
+
+  const li = s.listener || {};
+  document.getElementById("listener").innerHTML =
+    `<div style="margin-bottom:6px"><span class="pill ${li.enabled?'on':''}">${li.enabled?'aktiv (selbstorganisiert)':'deaktiviert'}</span></div>
+     <div style="color:var(--dim);font-size:12.5px">Gehörte Werke: ${li.known_works ?? 0} · Korpus: ${li.corpus_docs ?? 0} Dokumente<br>Letzter Lauf: ${esc(li.last_result ?? "—")}</div>
+     <div style="margin-top:8px"><button onclick="listenNow()" ${li.enabled?'':'disabled'}>Jetzt zuhören</button></div>
+     <div style="color:var(--dim);font-size:11.5px;margin-top:6px">Quellen: ${(li.sources||[]).map(esc).join(", ") || "—"}.<br>Eigene Denker: data/denker_feeds.json. Antrieb: „horizont“-Urge.</div>` +
+    (s.metagoal_log && s.metagoal_log.length
+      ? `<div class="trace" style="margin-top:6px">Metagoal-Wächter:<br>${s.metagoal_log.map(esc).join("<br>")}</div>` : "");
+
+  document.getElementById("cycles").innerHTML = [...s.history].reverse().map(c =>
+    `<div class="cyc"><b>Zyklus ${c.cycle}</b><br>` + c.reports.map(r =>
+      `<span class="agent">[${esc(r.agent)}]</span><br>&nbsp;&nbsp;` + r.actions.map(esc).join("<br>&nbsp;&nbsp;")
+    ).join("<br>") + "</div>"
+  ).join("") || "<span style='color:var(--dim)'>noch keine Aktivität</span>";
+
+  syncGraph(s.graph);
+}
+
+/* ---------- Force-Directed Graph (Canvas, ohne Bibliotheken) ---------- */
+const canvas = document.getElementById("graph");
+const ctx = canvas.getContext("2d");
+let graphData = {nodes: [], edges: []};
+let dragging = null;
+
+function syncGraph(g) {
+  graphData = g;
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  for (const n of g.nodes) {
+    if (!positions.has(n.id)) {
+      positions.set(n.id, {
+        x: cx + (Math.random() - 0.5) * 300,
+        y: cy + (Math.random() - 0.5) * 300, vx: 0, vy: 0,
+      });
+    }
+  }
+  for (const id of [...positions.keys()]) {
+    if (!g.nodes.some(n => n.id === id)) positions.delete(id);
+  }
+}
+
+function physics() {
+  const nodes = graphData.nodes, edges = graphData.edges;
+  const k = 0.012, repulsion = 5200, damping = 0.82;
+  for (let i = 0; i < nodes.length; i++) {
+    const pi = positions.get(nodes[i].id);
+    for (let j = i + 1; j < nodes.length; j++) {
+      const pj = positions.get(nodes[j].id);
+      let dx = pi.x - pj.x, dy = pi.y - pj.y;
+      let d2 = dx * dx + dy * dy + 40;
+      const f = repulsion / d2;
+      const d = Math.sqrt(d2);
+      dx /= d; dy /= d;
+      pi.vx += dx * f; pi.vy += dy * f;
+      pj.vx -= dx * f; pj.vy -= dy * f;
+    }
+  }
+  for (const e of edges) {
+    const a = positions.get(e.from), b = positions.get(e.to);
+    if (!a || !b) continue;
+    const dx = b.x - a.x, dy = b.y - a.y;
+    a.vx += dx * k; a.vy += dy * k;
+    b.vx -= dx * k; b.vy -= dy * k;
+  }
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  for (const n of nodes) {
+    const p = positions.get(n.id);
+    p.vx += (cx - p.x) * 0.002; p.vy += (cy - p.y) * 0.002;  // sanfte Zentrierung
+    p.vx *= damping; p.vy *= damping;
+    if (dragging !== n.id) { p.x += p.vx; p.y += p.vy; }
+  }
+}
+
+const EDGE_COLORS = {Inheritance: "#58a6ff", Similarity: "#3fb950"};
+function draw() {
+  const parent = canvas.parentElement;
+  if (canvas.width !== parent.clientWidth || canvas.height !== parent.clientHeight) {
+    canvas.width = parent.clientWidth; canvas.height = parent.clientHeight;
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (const e of graphData.edges) {
+    const a = positions.get(e.from), b = positions.get(e.to);
+    if (!a || !b) continue;
+    ctx.strokeStyle = EDGE_COLORS[e.type] || "#d29922";
+    ctx.globalAlpha = 0.25 + 0.7 * e.confidence;
+    ctx.lineWidth = 0.5 + 2 * e.strength;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    // Pfeilspitze für gerichtete Links
+    if (e.type === "Inheritance") {
+      const ang = Math.atan2(b.y - a.y, b.x - a.x);
+      const mx = a.x + (b.x - a.x) * 0.62, my = a.y + (b.y - a.y) * 0.62;
+      ctx.beginPath();
+      ctx.moveTo(mx, my);
+      ctx.lineTo(mx - 7 * Math.cos(ang - 0.4), my - 7 * Math.sin(ang - 0.4));
+      ctx.lineTo(mx - 7 * Math.cos(ang + 0.4), my - 7 * Math.sin(ang + 0.4));
+      ctx.fillStyle = ctx.strokeStyle; ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+  const maxSti = Math.max(1, ...graphData.nodes.map(n => n.sti));
+  for (const n of graphData.nodes) {
+    const p = positions.get(n.id);
+    const r = 4 + 11 * Math.sqrt(n.sti / maxSti);
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 7);
+    ctx.fillStyle = n.vlti ? "#bc8cff" : (n.sti > 0 ? "#f0883e" : "#484f58");
+    ctx.fill();
+    ctx.fillStyle = "#c9d1d9";
+    ctx.font = "11px ui-monospace, monospace";
+    ctx.fillText(n.label, p.x + r + 3, p.y + 3);
+  }
+}
+
+canvas.addEventListener("mousedown", ev => {
+  const rect = canvas.getBoundingClientRect();
+  const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+  for (const n of graphData.nodes) {
+    const p = positions.get(n.id);
+    if ((p.x - x) ** 2 + (p.y - y) ** 2 < 230) { dragging = n.id; break; }
+  }
+});
+canvas.addEventListener("mousemove", ev => {
+  if (!dragging) return;
+  const rect = canvas.getBoundingClientRect();
+  const p = positions.get(dragging);
+  if (p) { p.x = ev.clientX - rect.left; p.y = ev.clientY - rect.top; }
+});
+window.addEventListener("mouseup", () => dragging = null);
+
+(function loop() { physics(); draw(); requestAnimationFrame(loop); })();
+
+async function poll() {
+  try { applyState(await api("/api/state")); } catch (e) { /* Server weg? still weiter versuchen */ }
+}
+poll();
+setInterval(poll, 5000);
+</script>
+</body>
+</html>

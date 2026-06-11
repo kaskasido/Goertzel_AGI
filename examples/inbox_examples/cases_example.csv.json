@@ -1,0 +1,7 @@
+{
+  "mode": "cases",
+  "label_col": "outcome",
+  "feature_cols": ["has_fever", "has_cough", "has_rash", "short_breath"],
+  "positive_label": "flu",
+  "concept": "flu_suspected"
+}

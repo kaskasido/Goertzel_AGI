@@ -1,0 +1,9 @@
+case_id;has_fever;has_cough;has_rash;short_breath;outcome
+1;yes;yes;no;yes;flu
+2;yes;yes;no;no;flu
+3;no;no;yes;no;other
+4;no;no;no;no;other
+5;yes;no;no;yes;other
+6;yes;yes;no;yes;flu
+7;no;yes;no;no;other
+8;yes;yes;no;no;flu

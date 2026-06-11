@@ -1,0 +1,20 @@
+# Demo knowledge pack - causal & part-whole chains (lesson 02)
+# 'causes' and 'is_part_of' are transitive: the system closes the chain
+# with decreasing confidence per step. Ask: causes(rain) or is_part_of(cell).
+
+# Causal chain
+rain causes wet_ground
+wet_ground causes mud
+mud causes slippery_road
+slippery_road causes accidents
+
+# Part-whole chain
+a_cell is_part_of a_tissue
+a_tissue is_part_of an_organ
+an_organ is_part_of a_body
+a_body is_part_of an_organism
+
+# Mixed properties
+the_sun shows light
+the_sun shows heat
+ice shows cold
