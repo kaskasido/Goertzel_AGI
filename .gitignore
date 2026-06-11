@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# runtime data (learned state, user lessons, corpus)
+data/
+/inbox/
