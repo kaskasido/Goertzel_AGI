@@ -35,6 +35,51 @@ Load the included demo knowledge pack to see it all at once:
 python -m goertzel_agi.teach knowledge/demo     # or double-click teach_demo.bat
 ```
 
+## How to use this repository
+
+Think of the repository as a small workshop with three simple modes:
+
+1. **Start the web UI**  
+   Run `python -m webui.server` and open <http://localhost:8000>.
+2. **Load knowledge**  
+   Teach a folder such as `knowledge/demo` or `knowledge/chess` with
+   `python -m goertzel_agi.teach <folder>`.
+3. **Inspect what the system learned**  
+   Ask questions in the UI, inspect proof chains, and watch the knowledge graph
+   evolve.
+
+### Typical workflow
+
+- **Try the demo first** to understand the reasoning flow end-to-end.
+- **Use a knowledge pack** when you want a ready-made domain, for example the
+  chess pack in `knowledge/chess/`.
+- **Create your own pack** by copying the structure from `knowledge/demo/` and
+  writing short factual sentences.
+- **Use the inbox flow** when your knowledge starts as `.txt`, `.md`, `.csv`,
+  `.pdf`, or `.docx` files.
+
+### Practical examples
+
+- If you want to explore symbolic reasoning, start with `knowledge/demo/`.
+- If you want to model a specific topic step by step, create a new folder under
+  `knowledge/` and teach it with `python -m goertzel_agi.teach`.
+- If Alex wants to understand chess knowledge or later derive patterns from
+  saved games, `knowledge/chess/` is the best starting point before adding more
+  source material through the inbox pipeline.
+
+### Alex memory input (important)
+
+If Alex is the only living witness of specific games, he should explicitly teach
+those memories to the AGI:
+
+- which **exact moves** he and his brother chose in critical moments
+- **why** a move was chosen (plan, evaluation, or practical constraint)
+- whether a decision was primarily **emotional** (stress, fear, confidence,
+  revenge, surprise) or **rational** (calculation, position, opening prep)
+
+This context is essential because PGN alone shows *what* was played, but Alex's
+explanations add *why* it was played.
+
 ---
 
 ## What makes it different

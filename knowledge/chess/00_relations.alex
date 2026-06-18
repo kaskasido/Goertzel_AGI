@@ -1,0 +1,28 @@
+# Chess knowledge pack - relation vocabulary (lesson 00)
+#
+# Defines every verb used in this domain so the engine knows
+# which questions become askable.
+#
+# Standard relations (already in demo):
+#   is a          -> taxonomy / class membership
+#   is_part_of    -> part-whole (transitive)
+#   shows         -> property / observable attribute
+#
+# Chess-specific relations:
+#   can_move_like      -> how a piece moves (its movement pattern)
+#   can_capture_like   -> how a piece captures (often same as move)
+#   starts_on          -> starting square or zone on the board
+#   has_count          -> number of this piece per side
+#   is_played_on       -> which surface/object the game uses
+#   wins_by            -> how a side wins the game
+
+# -- bootstrap examples for each relation --
+chess is a board_game
+a_chessboard is_part_of chess
+chess shows strategy
+the_king can_move_like one_square_in_any_direction
+the_queen can_capture_like any_direction_unlimited_squares
+the_king starts_on e1_or_e8
+the_king has_count one_per_side
+chess is_played_on a_chessboard
+chess wins_by checkmating_the_opponent_king

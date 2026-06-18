@@ -105,7 +105,7 @@ class CognitiveKernel:
         return count
 
     def teach_file(self, path, cycles: int = 1) -> int:
-        """Eine .nico/.txt-Lektionsdatei einspeisen."""
+        """Eine .nico/.alex/.txt-Lektionsdatei einspeisen."""
         text = Path(path).read_text(encoding="utf-8")
         return self.teach(text, cycles=cycles)
 
@@ -146,9 +146,13 @@ class CognitiveKernel:
         return count
 
     def teach_path(self, path, cycles: int = 1) -> int:
-        """Datei oder ganzes Verzeichnis (rekursiv, *.nico/*.txt) lehren."""
+        """Datei oder ganzes Verzeichnis (rekursiv, *.nico/*.alex/*.txt) lehren."""
         p = Path(path)
-        files = sorted(p.rglob("*.nico")) + sorted(p.rglob("*.txt")) if p.is_dir() else [p]
+        if p.is_dir():
+            known = {".nico", ".alex", ".txt"}
+            files = sorted(f for f in p.rglob("*") if f.is_file() and f.suffix.lower() in known)
+        else:
+            files = [p]
         total = 0
         for f in files:
             total += self.teach_file(f, cycles=cycles)

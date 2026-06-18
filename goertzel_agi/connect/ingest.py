@@ -4,7 +4,7 @@ Das ist die "Lernsoftware, die Tag und Nacht laeuft": Du legst Dateien in
 inbox/, die Engine lernt sie und verschiebt sie nach processed/ (Fehler nach
 failed/). Unterstuetzt:
 
-  *.nico / *.txt / *.md   -> Saetze direkt lernen (Satz-Parser/Claude)
+  *.nico / *.alex / *.txt / *.md   -> Saetze direkt lernen (Satz-Parser/Claude)
   *.csv                   -> Fakten ODER MOSES-Faelle, je nach Sidecar-Mapping
   *.pdf / *.docx          -> Klartext lernen (nur mit pypdf/python-docx)
 
@@ -28,7 +28,7 @@ from typing import List
 from . import tabular
 from .documents import extract_text
 
-LEARNABLE = {".nico", ".txt", ".md", ".csv", ".pdf", ".docx"}
+LEARNABLE = {".nico", ".alex", ".txt", ".md", ".csv", ".pdf", ".docx"}
 
 
 @dataclass
@@ -79,7 +79,7 @@ class IngestEngine:
         suffix = path.suffix.lower()
         if suffix == ".csv":
             return self._learn_csv(path)
-        if suffix in (".nico", ".txt", ".md"):
+        if suffix in (".nico", ".alex", ".txt", ".md"):
             return self.kernel.teach_file(path, cycles=self.cycles)
         if suffix in (".pdf", ".docx"):
             text = extract_text(path)

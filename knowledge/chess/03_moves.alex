@@ -1,0 +1,93 @@
+# Chess knowledge pack - movement rules (lesson 03)
+#
+# Describes exactly how each piece may move and capture.
+# Special rules (castling, en passant, promotion) are included.
+
+# =========================================================
+# KING
+# =========================================================
+the_king can_move_like one_square_in_any_direction
+the_king can_capture_like one_square_in_any_direction
+the_king shows must_never_move_into_check
+the_king shows castling_move_possible
+
+# Castling (special king move)
+castling is a special_move
+castling is_part_of king_rules
+castling shows king_moves_two_squares_toward_rook
+castling shows rook_jumps_to_other_side_of_king
+castling shows only_if_neither_piece_has_moved
+castling shows only_if_king_not_in_check
+castling shows only_if_squares_between_are_empty
+castling shows only_if_king_does_not_cross_attacked_square
+
+# =========================================================
+# QUEEN
+# =========================================================
+the_queen can_move_like any_number_of_squares_in_any_direction
+the_queen can_capture_like any_number_of_squares_in_any_direction
+the_queen shows moves_like_rook_and_bishop_combined
+the_queen shows cannot_jump_over_pieces
+
+# =========================================================
+# ROOK
+# =========================================================
+the_rook can_move_like any_number_of_squares_horizontally_or_vertically
+the_rook can_capture_like any_number_of_squares_horizontally_or_vertically
+the_rook shows cannot_jump_over_pieces
+the_rook shows used_in_castling
+
+# =========================================================
+# BISHOP
+# =========================================================
+the_bishop can_move_like any_number_of_squares_diagonally
+the_bishop can_capture_like any_number_of_squares_diagonally
+the_bishop shows stays_on_its_starting_square_color
+the_bishop shows cannot_jump_over_pieces
+
+# =========================================================
+# KNIGHT
+# =========================================================
+the_knight can_move_like L_shape_two_squares_then_one_square_perpendicular
+the_knight can_capture_like L_shape_two_squares_then_one_square_perpendicular
+the_knight shows can_jump_over_other_pieces
+the_knight shows the_only_piece_that_can_jump
+
+# =========================================================
+# PAWN
+# =========================================================
+the_pawn can_move_like one_square_forward
+the_pawn shows can_move_two_squares_forward_on_first_move
+the_pawn can_capture_like one_square_diagonally_forward
+the_pawn shows cannot_capture_straight_ahead
+the_pawn shows cannot_move_backward
+
+# En passant (special pawn capture)
+en_passant is a special_move
+en_passant is_part_of pawn_rules
+en_passant shows capture_pawn_that_just_moved_two_squares
+en_passant shows must_be_done_immediately_on_next_move
+en_passant shows capturing_pawn_moves_diagonally_forward
+
+# Promotion (pawn reaches last rank)
+promotion is a special_move
+promotion is_part_of pawn_rules
+promotion shows pawn_reaching_rank_8_white_or_rank_1_black
+promotion shows pawn_becomes_queen_rook_bishop_or_knight
+promotion shows usually_choose_queen
+
+# =========================================================
+# GENERAL RULES
+# =========================================================
+a_chess_piece shows cannot_move_to_square_occupied_by_own_piece
+a_chess_piece shows captures_by_replacing_opponent_piece_on_that_square
+chess wins_by checkmating_the_opponent_king
+chess shows check_means_king_is_under_attack
+chess shows checkmate_means_check_with_no_legal_escape
+chess shows stalemate_means_no_legal_move_but_not_in_check
+stalemate shows draw_result
+chess shows draw_also_by_insufficient_material
+chess shows draw_also_by_threefold_repetition
+chess shows draw_also_by_fifty_move_rule
+chess shows white_moves_first
+chess shows players_alternate_turns
