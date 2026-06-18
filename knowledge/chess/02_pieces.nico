@@ -1,0 +1,44 @@
+# Chess knowledge pack - chess pieces (lesson 02)
+#
+# Taxonomy, count per side, and starting squares of every piece.
+
+# --- Taxonomy ---
+a_chess_piece is_part_of chess
+the_king is a chess_piece
+the_queen is a chess_piece
+the_rook is a chess_piece
+the_bishop is a chess_piece
+the_knight is a chess_piece
+the_pawn is a chess_piece
+
+# Each side (white / black) has the same set
+white_pieces is_part_of chess
+black_pieces is_part_of chess
+white_pieces resembles black_pieces
+
+# --- Count per side ---
+the_king has_count one_per_side
+the_queen has_count one_per_side
+the_rook has_count two_per_side
+the_bishop has_count two_per_side
+the_knight has_count two_per_side
+the_pawn has_count eight_per_side
+
+# Total pieces per side = 16
+each_side shows 16_pieces
+
+# --- Starting squares (White; Black mirrors on ranks 7-8) ---
+the_king starts_on e1_white_e8_black
+the_queen starts_on d1_white_d8_black
+the_rook starts_on a1_h1_white_a8_h8_black
+the_bishop starts_on c1_f1_white_c8_f8_black
+the_knight starts_on b1_g1_white_b8_g8_black
+the_pawn starts_on rank_2_white_rank_7_black
+
+# Piece values (relative importance)
+the_king shows infinite_value
+the_queen shows value_9
+the_rook shows value_5
+the_bishop shows value_3
+the_knight shows value_3
+the_pawn shows value_1

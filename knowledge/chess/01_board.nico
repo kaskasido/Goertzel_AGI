@@ -1,0 +1,57 @@
+# Chess knowledge pack - the chessboard (lesson 01)
+#
+# Teaches the AGI how the board is structured:
+# 8x8 grid, ranks, files, colors, and starting zones.
+
+# --- What chess is ---
+chess is a board_game
+chess is a two_player_game
+chess is a strategy_game
+chess is a turn_based_game
+a_board_game is a game
+a_strategy_game is a game
+
+# --- The board itself ---
+a_chessboard is_part_of chess
+a_chessboard shows 64_squares
+a_chessboard shows 8_ranks
+a_chessboard shows 8_files
+a_chessboard shows alternating_light_and_dark_squares
+a_rank is_part_of a_chessboard
+a_file is_part_of a_chessboard
+a_square is_part_of a_chessboard
+
+# Ranks are rows (1-8), files are columns (a-h)
+rank_1 is a rank
+rank_2 is a rank
+rank_3 is a rank
+rank_4 is a rank
+rank_5 is a rank
+rank_6 is a rank
+rank_7 is a rank
+rank_8 is a rank
+
+file_a is a file
+file_b is a file
+file_c is a file
+file_d is a file
+file_e is a file
+file_f is a file
+file_g is a file
+file_h is a file
+
+# Starting zones
+rank_1 shows white_starting_rank
+rank_2 shows white_pawn_rank
+rank_7 shows black_pawn_rank
+rank_8 shows black_starting_rank
+
+# Square colors
+a_light_square is a square
+a_dark_square is a square
+a_chessboard shows 32_light_squares
+a_chessboard shows 32_dark_squares
+
+# How the board is oriented
+a_chessboard shows white_plays_from_rank_1_and_2
+a_chessboard shows black_plays_from_rank_7_and_8
