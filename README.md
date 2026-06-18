@@ -67,6 +67,19 @@ Think of the repository as a small workshop with three simple modes:
   saved games, `knowledge/chess/` is the best starting point before adding more
   source material through the inbox pipeline.
 
+### Alex memory input (important)
+
+If Alex is the only living witness of specific games, he should explicitly teach
+those memories to the AGI:
+
+- which **exact moves** he and his brother chose in critical moments
+- **why** a move was chosen (plan, evaluation, or practical constraint)
+- whether a decision was primarily **emotional** (stress, fear, confidence,
+  revenge, surprise) or **rational** (calculation, position, opening prep)
+
+This context is essential because PGN alone shows *what* was played, but Alex's
+explanations add *why* it was played.
+
 ---
 
 ## What makes it different
