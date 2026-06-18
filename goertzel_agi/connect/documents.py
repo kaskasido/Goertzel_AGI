@@ -1,4 +1,4 @@
-"""Dokumente zu lernbarem Text. Stdlib fuer .txt/.md/.nico; PDF/DOCX nur,
+"""Dokumente zu lernbarem Text. Stdlib fuer .txt/.md/.nico/.alex; PDF/DOCX nur,
 wenn optionale Pakete installiert sind (pypdf bzw. python-docx).
 
 Reiner Klartext-Extraktor. Das Zerlegen in kurze, gepruefte Saetze (fuer
@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-TEXT_SUFFIXES = {".nico", ".txt", ".md"}
+TEXT_SUFFIXES = {".nico", ".alex", ".txt", ".md"}
 
 
 def extract_text(path) -> str:

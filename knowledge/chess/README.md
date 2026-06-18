@@ -17,10 +17,10 @@ Or drop the files into `inbox/` and click **Process inbox** in the web UI.
 
 | File | Content |
 |---|---|
-| `00_relations.nico` | Relation vocabulary — defines which questions become askable |
-| `01_board.nico` | Board structure: 8×8 grid, ranks, files, square colors, starting zones |
-| `02_pieces.nico` | Piece taxonomy, count per side, starting squares, relative values |
-| `03_moves.nico` | Movement rules for every piece; castling, en passant, promotion |
+| `00_relations.alex` | Relation vocabulary — defines which questions become askable |
+| `01_board.alex` | Board structure: 8×8 grid, ranks, files, square colors, starting zones |
+| `02_pieces.alex` | Piece taxonomy, count per side, starting squares, relative values |
+| `03_moves.alex` | Movement rules for every piece; castling, en passant, promotion |
 
 ## Things to ask afterwards
 
