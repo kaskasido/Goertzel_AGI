@@ -46,3 +46,49 @@ Or drop the files into `inbox/` and click **Process inbox** in the web UI.
 - ♘ Knight — L-shape, jumps over pieces
 - ♙ Pawn — forward move, diagonal capture, en passant, promotion
 - Draw conditions: stalemate, insufficient material, threefold repetition, fifty-move rule
+
+## Gespeicherte Partien einbinden
+
+Alex hat auf einer Online-Plattform (z. B. **Lichess** oder **Chess.com**)
+Partien gespielt, die gespeichert sind. Diese Partien sind wichtiges Material
+um zu verstehen, **wie sein Bruder gespielt hat** — welche Eröffnungen er
+bevorzugt hat, wie er Mittelspiele geführt hat, welche taktischen Muster er
+immer wieder eingesetzt hat.
+
+### Partien exportieren
+
+**Lichess:**
+```
+https://lichess.org/@/<benutzername>/games/export
+```
+Format wählen: **PGN** (Portable Game Notation) — das ist das Standard-Format
+für Schachpartien.
+
+**Chess.com:**
+Im Profil → *Game Archive* → *Export*
+
+### Partien in die AGI einbringen
+
+PGN-Dateien sind strukturierter Text. Die Züge (z. B. `1. e4 e5 2. Nf3 Nc6`)
+können als Satz-Tripel in eine `.alex`-Datei übersetzt werden, zum Beispiel:
+
+```
+# Aus Partie 1 — Eröffnung
+alex_bruder prefers_opening kings_pawn_e4
+alex_bruder plays_after_e4 nf3_attack
+alex_bruder avoids sicilian_defense
+```
+
+Oder man legt die rohen PGN-Dateien in `inbox/` und schreibt einen
+Konverter (`pgn_to_alex.py`), der aus den Zügen Muster-Tripel erzeugt.
+
+### Ziel
+
+Aus den gespeicherten Partien soll die AGI lernen:
+- Welche Eröffnungen wurden bevorzugt?
+- Welche Figuren wurden früh aktiviert?
+- Gab es Lieblingsmuster (Gabeln, Fesselungen, Opfer)?
+- Wie war der typische Spielrhythmus — aggressiv, positionell, defensiv?
+
+So entsteht ein **symbolisches Profil des Spielstils** — etwas, das Alex
+für sich selbst versteht.
